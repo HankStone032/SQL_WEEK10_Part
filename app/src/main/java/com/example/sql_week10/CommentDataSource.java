@@ -8,6 +8,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.Editable;
 
 public class CommentDataSource {
 
@@ -15,7 +16,7 @@ public class CommentDataSource {
     private SQLiteDatabase database;
     private MySQLiteHelper dbHelper;
     private String[] allColumns = { MySQLiteHelper.COLUMN_ID,
-            MySQLiteHelper.COLUMN_COMMENT };
+            MySQLiteHelper.COLUMN_COMMENT, MySQLiteHelper.COLUMN_RATING };
 
     public CommentDataSource(Context context) {
         dbHelper = new MySQLiteHelper(context);
@@ -29,9 +30,10 @@ public class CommentDataSource {
         dbHelper.close();
     }
     //Inserts a new comment into the database
-    public Comment createComment(String comment) {
+    public Comment createComment(String comment, Editable rating) {
         ContentValues values = new ContentValues();
         values.put(MySQLiteHelper.COLUMN_COMMENT, comment);
+        values.put(MySQLiteHelper.COLUMN_RATING, String.valueOf(rating));
         long insertId = database.insert(MySQLiteHelper.TABLE_COMMENTS, null,
                 values);
         Cursor cursor = database.query(MySQLiteHelper.TABLE_COMMENTS,
@@ -53,8 +55,7 @@ public class CommentDataSource {
     public List<Comment> getAllComments() {
         List<Comment> comments = new ArrayList<Comment>();
 
-        Cursor cursor = database.query(MySQLiteHelper.TABLE_COMMENTS,
-                allColumns, null, null, null, null, null);
+        Cursor cursor = database.query(MySQLiteHelper.TABLE_COMMENTS, null, null, null, null, null, null);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -70,6 +71,7 @@ public class CommentDataSource {
     private Comment cursorToComment(Cursor cursor) {
         Comment comment = new Comment();
         comment.setId(cursor.getLong(cursor.getColumnIndex(MySQLiteHelper.COLUMN_ID)));
+        comment.setRating(cursor.getString( cursor.getColumnIndex( MySQLiteHelper.COLUMN_RATING ) ));
         comment.setComment(cursor.getString(1));
         return comment;
     }
