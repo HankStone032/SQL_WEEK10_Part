@@ -1,0 +1,2 @@
+rootProject.name='SQL_WEEK10'
+include ':app'
